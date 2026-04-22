@@ -17,4 +17,13 @@ export class PostsRepository {
             where: { id },
         });
     }
+
+    async getRanking(limit: number): Promise<Post[]> {
+        return this.prisma.post.findMany({
+            orderBy: {
+                likesCount: 'desc',
+            },
+            take: limit,
+        });
+    }
 }

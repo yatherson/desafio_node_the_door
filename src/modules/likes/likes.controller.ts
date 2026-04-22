@@ -13,8 +13,7 @@ export class LikesController {
     @ApiOperation({ summary: 'Registrar like em um post' })
     async registerLike(@Param('postId') postId: string) {
 
-        const anonymousId = 'anonymous-user';
-
+        const anonymousId = `user-${Math.random().toString(36).substring(7)}`;
         await this.likesService.addLikeToQueue(postId, anonymousId);
         return { message: 'Like request accepted' };
     }

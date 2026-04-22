@@ -44,6 +44,7 @@ export class LikesProcessor extends WorkerHost {
 
             await this.cacheManager.del(CACHE_KEYS.POST_DETAIL(postId));
             await this.cacheManager.del(CACHE_KEYS.POSTS_ALL);
+            await this.cacheManager.del(CACHE_KEYS.POSTS_RANKING);
 
             this.logger.log(`Sucesso: Like processado para o post ${postId}`);
 

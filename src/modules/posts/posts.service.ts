@@ -1,16 +1,17 @@
-import { Injectable, Inject, Logger } from '@nestjs/common';
+import {Injectable, Inject, Logger, InternalServerErrorException} from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import type { Cache } from 'cache-manager';
 import { PostsRepository } from './posts.repository';
 import { Post } from '@prisma/client';
 import { PostNotFoundException } from '../../common/errors/post-not-found.exception';
+import {CACHE_KEYS} from "../../common/constants/cache-keys";
 
 @Injectable()
 export class PostsService {
     private readonly logger = new Logger(PostsService.name);
 
     constructor(
-        private readonly repository: PostsRepository,
+        private readonly postsRepository: PostsRepository,
         @Inject(CACHE_MANAGER) private cacheManager: Cache,
     ) {}
 
@@ -24,7 +25,7 @@ export class PostsService {
         }
 
         this.logger.debug('Cache MISS: findAll');
-        const posts = await this.repository.findAll();
+        const posts = await this.postsRepository.findAll();
 
         await this.cacheManager.set(cacheKey, posts, 60000);
 
@@ -37,7 +38,7 @@ export class PostsService {
         const cachedPost = await this.cacheManager.get<Post>(cacheKey);
         if (cachedPost) return cachedPost;
 
-        const post = await this.repository.findById(id);
+        const post = await this.postsRepository.findById(id);
 
         if (!post) {
             throw new PostNotFoundException(`Post with ID ${id} not found`);
@@ -48,15 +49,28 @@ export class PostsService {
         return post;
     }
 
-   // async getRanking(): Promise<Post[]> {
-   //      const cacheKey = 'posts:ranking';
-   //
-   //      const cachedRanking = await this.cacheManager.get<Post[]>(cacheKey);
-   //      if (cachedRanking) return cachedRanking;
-   //
-   //      const ranking = await this.repository.getRanking(10);
-   //      await this.cacheManager.set(cacheKey, ranking, 60000);
-   //
-   //      return ranking;
-   //  }
+    async getRanking(): Promise<Post[]> {
+        try {
+
+            try {
+                const cached = await this.cacheManager.get<Post[]>(CACHE_KEYS.POSTS_RANKING);
+                if (cached) return cached;
+            } catch (e) {
+                this.logger.error('Erro ao acessar o Redis', e);
+            }
+
+            const ranking = await this.postsRepository.getRanking(10);
+
+
+            if (!ranking || ranking.length === 0) {
+
+                return [];
+            }
+
+            return ranking;
+        } catch (error) {
+            this.logger.error(`Falha fatal ao gerar ranking: ${error.message}`);
+            throw new InternalServerErrorException('Não foi possível carregar o ranking no momento.');
+        }
+    }
 }

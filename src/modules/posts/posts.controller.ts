@@ -15,6 +15,12 @@ export class PostsController {
         return this.postsService.findAll();
     }
 
+    @Get('ranking')
+    @ApiOperation({ summary: 'Obter ranking dos posts com mais likes' })
+    async getRanking() {
+        return this.postsService.getRanking();
+    }
+
     @Get(':id')
     @ApiOperation({ summary: 'Buscar um post por ID' })
     @ApiResponse({ status: 200, description: 'Post encontrado.' })
@@ -22,4 +28,5 @@ export class PostsController {
     async findOne(@Param('id') id: string) {
         return this.postsService.findOne(id);
     }
+
 }
