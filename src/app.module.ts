@@ -6,6 +6,7 @@ import { PostsModule } from './modules/posts/posts.module';
 
 @Module({
   imports: [
+    PostsModule,
     CacheModule.registerAsync({
       isGlobal: true,
       useFactory: async () => ({
