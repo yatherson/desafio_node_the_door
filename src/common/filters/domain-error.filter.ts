@@ -1,20 +1,34 @@
-import { ExceptionFilter, Catch, ArgumentsHost, HttpStatus } from '@nestjs/common';
-import { Response } from 'express';
-import { NotFoundError } from '../errors/not-found.error';
+import { ExceptionFilter, Catch, ArgumentsHost, HttpStatus, Logger } from '@nestjs/common';
+import { PostNotFoundException } from '../errors/post-not-found.exception';
+import { DuplicatedUserLikeException } from '../errors/duplicated-user-like.exception';
 
-@Catch(NotFoundError)
+@Catch(Error)
 export class DomainErrorFilter implements ExceptionFilter {
+    private readonly logger = new Logger('HttpError');
+
     catch(exception: Error, host: ArgumentsHost) {
         const ctx = host.switchToHttp();
-        const response = ctx.getResponse<Response>();
+        const response = ctx.getResponse();
 
-        if (exception instanceof NotFoundError) {
-            return response.status(HttpStatus.NOT_FOUND).json({
-                statusCode: HttpStatus.NOT_FOUND,
-                message: exception.message,
-                error: 'Not Found',
-            });
+        let status = HttpStatus.INTERNAL_SERVER_ERROR;
+        let message = 'Erro interno no servidor.';
+
+        if (exception instanceof PostNotFoundException) {
+            status = HttpStatus.NOT_FOUND;
+            message = exception.message;
+        }
+        else if (exception instanceof DuplicatedUserLikeException) {
+            status = HttpStatus.CONFLICT;
+            message = exception.message;
         }
 
+        this.logger.error(`[${exception.name}] - ${message}`);
+
+        response.status(status).json({
+            statusCode: status,
+            error: exception.name,
+            message: message,
+            timestamp: new Date().toISOString(),
+        });
     }
 }
