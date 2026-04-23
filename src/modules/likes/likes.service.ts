@@ -17,7 +17,7 @@ export class LikesService {
         const post = await this.postsRepository.findById(postId);
 
         if (!post) {
-            throw new PostNotFoundException(`Post com ID ${postId} não encontrado.`);
+            throw new PostNotFoundException(postId);
         }
 
         await this.likesQueue.add(
@@ -38,7 +38,7 @@ export class LikesService {
         const post = await this.postsRepository.findById(postId);
 
         if (!post) {
-            throw new PostNotFoundException(`Post com ID ${postId} não encontrado.`);
+            throw new PostNotFoundException(postId);
         }
 
         return {
