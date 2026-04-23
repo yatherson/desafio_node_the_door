@@ -41,7 +41,7 @@ export class PostsService {
         const post = await this.postsRepository.findById(id);
 
         if (!post) {
-            throw new PostNotFoundException(`Post with ID ${id} not found`);
+            throw new PostNotFoundException(`Post com id ${id} não encontrado`);
         }
 
         await this.cacheManager.set(cacheKey, post, 60000);

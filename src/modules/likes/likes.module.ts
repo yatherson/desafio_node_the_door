@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
 import { LikesController } from './likes.controller';
-import { LikesService } from './likes.service'; // Faltava este
-import { LikesProcessor } from './likes.processor'; // Faltava este
+import { LikesService } from './likes.service';
+import { LikesProcessor } from './likes.processor';
 import { PostsModule } from '../posts/posts.module';
+import {LikesRepository} from "./likes.repository";
 
 @Module({
     imports: [
@@ -15,7 +16,8 @@ import { PostsModule } from '../posts/posts.module';
     controllers: [LikesController],
     providers: [
         LikesService,
-        LikesProcessor
+        LikesProcessor,
+        LikesRepository
     ],
 })
 export class LikesModule {}
