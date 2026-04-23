@@ -16,7 +16,7 @@ export class PostsService {
     ) {}
 
     async findAll(): Promise<Post[]> {
-        const cacheKey = 'posts:all';
+        const cacheKey = CACHE_KEYS.POSTS_ALL;
 
         const cachedPosts = await this.cacheManager.get<Post[]>(cacheKey);
         if (cachedPosts) {
@@ -33,7 +33,7 @@ export class PostsService {
     }
 
     async findOne(id: string): Promise<Post> {
-        const cacheKey = `posts:${id}`;
+        const cacheKey = CACHE_KEYS.POST_DETAIL(id);
 
         const cachedPost = await this.cacheManager.get<Post>(cacheKey);
         if (cachedPost) return cachedPost;
@@ -66,6 +66,8 @@ export class PostsService {
 
                 return [];
             }
+
+            await this.cacheManager.set(CACHE_KEYS.POSTS_RANKING, ranking, 60000);
 
             return ranking;
         } catch (error) {

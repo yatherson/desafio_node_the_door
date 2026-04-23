@@ -25,7 +25,7 @@ export class LikesProcessor extends WorkerHost {
         try {
             this.logger.log(`Processing job ${job.id}: Like in Post ${postId}`);
 
-            await this.likesRepository.createLikeAndUpdatePostCount(postId, postId);
+            await this.likesRepository.createLikeAndUpdatePostCount(postId, userId);
 
             await this.cacheManager.del(CACHE_KEYS.POST_DETAIL(postId));
             await this.cacheManager.del(CACHE_KEYS.POSTS_ALL);
