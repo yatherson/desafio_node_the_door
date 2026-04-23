@@ -1,4 +1,4 @@
-import { ExceptionFilter, Catch, ArgumentsHost, HttpStatus, Logger } from '@nestjs/common';
+import {ExceptionFilter, Catch, ArgumentsHost, HttpStatus, Logger, HttpException} from '@nestjs/common';
 import { PostNotFoundException } from '../errors/post-not-found.exception';
 import { DuplicatedUserLikeException } from '../errors/duplicated-user-like.exception';
 
@@ -10,8 +10,15 @@ export class DomainErrorFilter implements ExceptionFilter {
         const ctx = host.switchToHttp();
         const response = ctx.getResponse();
 
+        if (exception instanceof HttpException) {
+            const status = exception.getStatus();
+            const body = exception.getResponse();
+            response.status(status).json(body);
+            return;
+        }
+
         let status = HttpStatus.INTERNAL_SERVER_ERROR;
-        let message = 'Erro interno no servidor.';
+        let message = 'Internal server error.';
 
         if (exception instanceof PostNotFoundException) {
             status = HttpStatus.NOT_FOUND;

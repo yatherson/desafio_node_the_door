@@ -1,7 +1,9 @@
 import {ApiOperation, ApiResponse, ApiTags} from "@nestjs/swagger";
-import {Controller, Get, HttpCode, HttpStatus, Param, Post} from "@nestjs/common";
+import {Body, Controller, Get, HttpCode, HttpStatus, Param, Post} from "@nestjs/common";
 import {LikesService} from "./likes.service";
 import {LikesCountResponseDto} from "./dto/likes-count.response.dto";
+import {RegisterLikeDto} from "./dto/register-like.dto";
+import {RegisterLikeResponseDto} from "./dto/register-like.response.dto";
 
 @ApiTags('likes')
 @Controller('posts/:postId/likes')
@@ -11,11 +13,17 @@ export class LikesController {
     @Post()
     @HttpCode(HttpStatus.ACCEPTED)
     @ApiOperation({ summary: 'Registrar like em um post' })
-    async registerLike(@Param('postId') postId: string) {
-
-        const anonymousId = `user-${Math.random().toString(36).substring(7)}`;
-        await this.likesService.addLikeToQueue(postId, anonymousId);
-        return { message: 'Like request accepted' };
+    @ApiResponse({status: 202, type: RegisterLikeResponseDto})
+    async registerLike(
+        @Param('postId') postId: string,
+        @Body() body: RegisterLikeDto,
+    ) {
+        await this.likesService.addLikeToQueue(postId, body.userId);
+        return {
+            message: 'Solicitação de like aceita',
+            postId: postId,
+            userId: body.userId,
+        };
     }
 
     @Get('count')
