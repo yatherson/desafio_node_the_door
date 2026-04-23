@@ -1,6 +1,5 @@
 import { Controller, Get, Param } from '@nestjs/common';
 import { PostsService } from './posts.service';
-import { Post as PostEntity } from '@prisma/client';
 import {ApiOperation, ApiResponse, ApiTags} from "@nestjs/swagger";
 import {PostResponseDto} from "./dto/post.response.dto";
 

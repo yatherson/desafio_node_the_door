@@ -1,7 +1,7 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
- import { PostsRepository } from '../posts/posts.repository';
+import { PostsRepository } from '../posts/posts.repository';
 import { PostNotFoundException } from '../../common/errors/post-not-found.exception';
 import { LikesCountResponseDto } from './dto/likes-count.response.dto';
 
